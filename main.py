@@ -86,4 +86,6 @@ while True:
         with open('data.txt', 'w') as file:
             file.write(str(channel1))
         save_data = False
+
+# more optimization required
     
