@@ -11,7 +11,7 @@ last_time = 0
 def handler(pin: Pin):
     global preamble_time, preamble_counter, preamble, last_time
     if pin.value():  # rising
-        if not preamble:
+        if not preamble:  # no preamble found yet
             time = ticks_us() - preamble_time
             if 10800 < time < 11100:  # could be preamble pulse if conditions is true
                 tick = ticks_us()
@@ -27,7 +27,7 @@ def handler(pin: Pin):
                 last_time = tick
 
     else:  # falling
-        if not preamble:
+        if not preamble:  # no preamble found yet
             preamble_time = ticks_us()    
 
 
