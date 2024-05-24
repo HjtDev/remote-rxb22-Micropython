@@ -11,10 +11,11 @@ time_bits = []
 
 def convert_timer_bit_to_decimal(bits):
     result = '0b'
+    avg = sum(bits) // len(bits)
     for bit in bits:
-        if bit < 500:
+        if bit < avg:
             result += '0'
-        elif 800 < bit < 1150:
+        elif bit > avg:
             result += '1'
         else:
             raise ValueError(f'Invalid bit value: {bit}')
