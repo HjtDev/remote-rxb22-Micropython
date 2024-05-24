@@ -11,7 +11,14 @@ timer_counter = 0
 last_time = 0
 time_bits = []
 data_saver = []
+save_data = False
 channel1 = 0
+
+with open('data.txt', 'r') as file:
+    lines = file.readlines()
+    if lines:
+        channel1 = int(lines[0].replace('\n', ''))
+
 
 def convert_timer_bit_to_decimal(bits):
     result = '0b'
@@ -26,7 +33,7 @@ def convert_timer_bit_to_decimal(bits):
     return int(result, 2)
 
 def handler(pin: Pin):
-    global timer_counter, preamble_counter, preamble, last_time, channel1
+    global timer_counter, preamble_counter, preamble, last_time, channel1, save_data
     if pin.value():  # rising
         if not preamble:  # no preamble found yet
             time = ticks_us() - timer_counter
@@ -60,6 +67,7 @@ def handler(pin: Pin):
                         if data_saver.count(data_saver[0]) == 3 and learn_button.value():
                             channel1 = data_saver[0]
                             print('channel 1 is setted to', channel1)
+                            save_data = True
                         data_saver.clear()
                     if channel1 == data_decimal:
                         led.value(not led.value())
@@ -74,5 +82,8 @@ def handler(pin: Pin):
 data.irq(trigger=3, handler=handler)
 
 while True:
-    pass
+    if save_data:
+        with open('data.txt', 'w') as file:
+            file.write(str(channel1))
+        save_data = False
     
