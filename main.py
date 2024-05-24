@@ -2,12 +2,16 @@ from machine import Pin
 from time import sleep, ticks_us, ticks_ms
 
 data = Pin(23, Pin.IN)
+learn_button = Pin(22, Pin.IN)
+led = Pin(2, Pin.OUT)
 
 preamble = False
 preamble_counter = 0
 timer_counter = 0
 last_time = 0
 time_bits = []
+data_saver = []
+channel1 = 0
 
 def convert_timer_bit_to_decimal(bits):
     result = '0b'
@@ -22,7 +26,7 @@ def convert_timer_bit_to_decimal(bits):
     return int(result, 2)
 
 def handler(pin: Pin):
-    global timer_counter, preamble_counter, preamble, last_time
+    global timer_counter, preamble_counter, preamble, last_time, channel1
     if pin.value():  # rising
         if not preamble:  # no preamble found yet
             time = ticks_us() - timer_counter
@@ -51,14 +55,15 @@ def handler(pin: Pin):
                 # print(time_bits, len(time_bits), min(time_bits), max(time_bits[1:]))
                 try:
                     data_decimal = convert_timer_bit_to_decimal(time_bits[1:])
-                    if data_decimal == 8238146:
-                        print('Remote A')
-                    elif data_decimal == 8238148:
-                        print('Remote B')
-                    elif data_decimal == 8238152:
-                        print('Remote C')
-                    elif data_decimal == 8238160:
-                        print('Remote D')
+                    data_saver.append(data_decimal)
+                    if len(data_saver) == 3:
+                        if data_saver.count(data_saver[0]) == 3 and learn_button.value():
+                            channel1 = data_saver[0]
+                            print('channel 1 is setted to', channel1)
+                        data_saver.clear()
+                    if channel1 == data_decimal:
+                        led.value(not led.value())
+                        sleep(.5)
                 except ValueError as e:
                     pass
                 finally:
